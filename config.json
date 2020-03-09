@@ -1,4 +1,22 @@
 {
-    "blacklist": [],
-    "word_blacklist": []
+  "keywords": [
+    "patate volante",
+    "patates volantes",
+    "patate ailée",
+    "patate avion",
+    "patate fusée",
+    "pomme de terre volante",
+    "frite volante",
+    "chips volante",
+    "pomme de terre rôtie",
+    "patate farcie",
+    "patates farcies",
+    "patate sautée",
+    "patates sautées",
+    "tubercule volant",
+    "axomania",
+    "pomme de terre en fête"
+  ],
+  "blacklist": [],
+  "word_blacklist": []
 }
