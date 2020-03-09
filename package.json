@@ -1,0 +1,9 @@
+{
+  "name": "botpatatevolante",
+  "version": "2.0.0",
+  "main": "bot.js",
+  "repository": "https://github.com/YoruNoHikage/Patate-Volante-Twitter",
+  "author": "Alexis Launay <yorunohikage@gmail.com>",
+  "license": "MIT",
+  "private": true
+}
