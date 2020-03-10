@@ -25,7 +25,7 @@
         });
 
     //check if we have the rights to do anything
-    twitterAPI.verifyCredentials(function(error, userdata) {
+    twitterAPI.get('account/verify_credentials', (error, userdata) => {
         if (error) {
             //if we don't, we'd better stop here anyway
             LogUtils.logtrace(error, LogUtils.Colors.RED);
@@ -46,14 +46,14 @@
         if(error.statusCode == 403 && !hasNotifiedTL) {
             //if we're in tweet limit, we will want to indicate that in the name of the bot
             //so, if we aren't sure we notified the users yet, get the current twitter profile of the bot
-            twitterAPI.showUser(botUsername, function(error, data) {
+            twitterAPI.get('users/lookup', {screen_name: botUsername}, (error, data) => {
                 if(!error) {
                     if(data[0].name.match(/(\[TL\]) (.*)/)) {
                         //if we already changed the name but couldn't remember it (maybe it was during the previous session)
                         hasNotifiedTL = true;
                     } else {
                         //if the name of the bot hasn't already been changed, do it: we add "[TL]" just before its normal name
-                        twitterAPI.updateProfile({name: '[TL] ' + data[0].name}, function(error, data) {
+                        twitterAPI.post('account/update_profile', {name: '[TL] ' + data[0].name}, (error, data) => {
                             if(error) {
                                 LogUtils.logtrace("error while trying to change username (going IN TL)", LogUtils.Colors.RED);
                             } else {
@@ -110,8 +110,7 @@
 
             // retweet
             LogUtils.logtrace("Trying to retweet [" + data.id + "]", LogUtils.Colors.CYAN);
-            twitterAPI.retweetStatus(data.id_str, 
-                function(error, statusData) {
+            twitterAPI.post('/statuses/retweet/' + data.id_str, {}, (error, statusData) => {
                     //when we got a response from twitter, check for an error (which can occur pretty frequently)
                     if(error) {
                         errorTwitter(error, statusData);
@@ -125,7 +124,7 @@
                         //if we just got out of tweet limit, we need to update the bot's name
                         if(tweetLimitCheck != null) {
                             //DO EET
-                            twitterAPI.updateProfile({name: tweetLimitCheck[2]}, function(error, data) {
+                            twitterAPI.post('account/update_profile', {name: tweetLimitCheck[2]}, (error, data) => {
                                 if(error) {
                                     LogUtils.logtrace("error while trying to change username (going OUT of TL)", LogUtils.Colors.RED);
                                 } else {
@@ -199,8 +198,11 @@
             LogUtils.logtrace(tweetDone, LogUtils.Colors.YELLOW);
 
             //reply to the tweet that mentionned us
-            twitterAPI.updateStatus(tweetDone.substring(0, 139), { in_reply_to_status_id: data.id_str }, 
-                function(error, statusData) {
+            twitterAPI.post('statuses/update', {
+                status: tweetDone.substring(0, 279),
+                in_reply_to_status_id: data.id_str,
+                include_entities: 1,
+              }, (error, statusData) => {
                     //when we got a response from twitter, check for an error (which can occur pretty frequently)
                     if(error) {
                         errorTwitter(error, statusData);
@@ -214,7 +216,7 @@
                         //if we just got out of tweet limit, we need to update the bot's name
                         if(tweetLimitCheck != null) {
                             //DO EET
-                            twitterAPI.updateProfile({name: tweetLimitCheck[2]}, function(error, data) {
+                            twitterAPI.post('account/update_profile', {name: tweetLimitCheck[2]}, (error, data) => {
                                 if(error) {
                                     LogUtils.logtrace("error while trying to change username (going OUT of TL)", LogUtils.Colors.RED);
                                 } else {
