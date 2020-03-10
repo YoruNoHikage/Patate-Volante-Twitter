@@ -7,6 +7,6 @@
   "license": "MIT",
   "private": true,
   "dependencies": {
-    "ntwitter": "0.5.0"
+    "twitter": "^1.7.1"
   }
 }

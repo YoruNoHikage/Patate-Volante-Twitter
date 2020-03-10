@@ -6,7 +6,7 @@
 
 (function() {
     //the twitter api module
-    var ntwitter = require('ntwitter'),
+    var Twitter = require('twitter'),
         LogUtils = require('./lib/LogUtils.js'),
 
         //the username of the bot. not set to begin with, we'll get it when authenticating
@@ -17,7 +17,7 @@
         config = require('./config.json'),
 
         //create an object using the keys we just determined
-        twitterAPI = new ntwitter({
+        twitterAPI = new Twitter({
             consumer_key: process.env.CONSUMER_TOKEN,
             consumer_secret: process.env.CONSUMER_SECRET,
             access_token_key: process.env.ACCESS_TOKEN_KEY,
