@@ -68,10 +68,8 @@
 
     function streamCallback(stream) {
         LogUtils.logtrace("streaming", LogUtils.Colors.CYAN);
-        
-        String.prototype.contains = function(word) {
-            return this.indexOf(word) != -1;
-        };
+
+        String.prototype.contains = String.prototype.includes;
 
         stream.on('data', function(data) {
             //if it's actually there
@@ -90,19 +88,20 @@
                 // or if it is a retweet
                 data.retweeted_status !== undefined
             ) {
+                LogUtils.logtrace(`No need to reply to ${data.user.screen_name}.`, LogUtils.Colors.CYAN);
                 return;
             }
 
             const tweet = data.truncated ? data.extended_tweet.full_text : data.text;
-            const text = tweet.toLowercase();
+            const text = tweet.toLowerCase();
 
             if(config.word_blacklist.some(word => text.contains(word.toLowerCase()))) {
-                LogUtils.logtrace("A blacklist word avoided", LogUtils.Colors.RED);
+                LogUtils.logtrace("A blacklist word avoided", LogUtils.Colors.CYAN);
                 return;
             }
 
             if (config.keywords.every(word => !text.contains(word))) {
-                LogUtils.logtrace("Keywords not contained in the tweet", LogUtils.Colors.RED);
+                LogUtils.logtrace("Keywords not contained in the tweet", LogUtils.Colors.CYAN);
                 return;
             }
 
@@ -231,9 +230,8 @@
         
         });
 
-        //if something happens, call the onStreamError function
-        stream.on('end', onStreamError);
         stream.on('error', onStreamError);
+        stream.on('end', onStreamEnded);
 
         //automatically disconnect every 30 minutes (more or less) to reset the stream
         setTimeout(stream.destroy, 1000 * 60 * 30);
@@ -241,8 +239,14 @@
 
     function onStreamError(e) {
         //when the stream is disconnected, connect again
-        if(!e.code) e.code = "unknown";
-        LogUtils.logtrace("streaming ended (" + e.code + ")", LogUtils.Colors.RED);
+        if(!e.statusCode) e.statusCode = "unknown";
+        LogUtils.logtrace("streaming errored (" + e.statusCode + ")", LogUtils.Colors.RED);
+    }
+
+    function onStreamEnded(e) {
+        //when the stream is disconnected, connect again
+        if(!e.statusCode) e.statusCode = "unknown";
+        LogUtils.logtrace("streaming ended (" + e.statusCode + ")", LogUtils.Colors.RED);
         setTimeout(initStreaming, 5000);
     }
 
