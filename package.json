@@ -5,5 +5,8 @@
   "repository": "https://github.com/YoruNoHikage/Patate-Volante-Twitter",
   "author": "Alexis Launay <yorunohikage@gmail.com>",
   "license": "MIT",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "ntwitter": "0.5.0"
+  }
 }
