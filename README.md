@@ -9,7 +9,7 @@ Begin by opening a new account for the bot on Twitter. Then, create an applicati
 Setup the following environment variables with your Twitter API keys:
 
 ```bash
-export CONSUMER_TOKEN=<YOUR_CONSUMER_TOKEN>
+export CONSUMER_KEY=<YOUR_CONSUMER_KEY>
 export CONSUMER_SECRET=<YOUR_CONSUMER_SECRET>
 export ACCESS_TOKEN_KEY=<YOUR_ACCESS_TOKEN_KEY>
 export ACCESS_TOKEN_SECRET=<YOUR_ACCESS_TOKEN_SECRET>
