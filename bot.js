@@ -92,6 +92,8 @@
                 return;
             }
 
+            const isQuotingBot = data.is_quote_status && data.quoted_status.user.screen_name.toLowerCase() === 'volantepatate';
+
             const tweet = data.truncated ? data.extended_tweet.full_text : data.text;
             const text = tweet.toLowerCase();
 
@@ -100,7 +102,7 @@
                 return;
             }
 
-            if (config.keywords.every(word => !text.contains(word))) {
+            if (!isQuotingBot && config.keywords.every(word => !text.contains(word))) {
                 LogUtils.logtrace("Keywords not contained in the tweet", LogUtils.Colors.CYAN);
                 return;
             }
@@ -110,31 +112,36 @@
             // retweet
             LogUtils.logtrace("Trying to retweet [" + data.id + "]", LogUtils.Colors.CYAN);
             twitterAPI.post('/statuses/retweet/' + data.id_str, {}, (error, statusData) => {
-                    //when we got a response from twitter, check for an error (which can occur pretty frequently)
-                    if(error) {
-                        errorTwitter(error, statusData);
-                    } else {
-                        //if we could send the tweet just fine
-                        LogUtils.logtrace("[" + statusData.retweeted_status.id_str + "] ->retweeted from [" + statusData.retweeted_status.user.screen_name + "]", LogUtils.Colors.GREEN);
-
-                        //check if there's "[TL]" in the name of the but
-                        var tweetLimitCheck = statusData.user.name.match(/(\[TL\]) (.*)/);	
-
-                        //if we just got out of tweet limit, we need to update the bot's name
-                        if(tweetLimitCheck != null) {
-                            //DO EET
-                            twitterAPI.post('account/update_profile', {name: tweetLimitCheck[2]}, (error, data) => {
-                                if(error) {
-                                    LogUtils.logtrace("error while trying to change username (going OUT of TL)", LogUtils.Colors.RED);
-                                } else {
-                                    hasNotifiedTL = true;
-                                    LogUtils.logtrace("gone OUT of tweet limit", LogUtils.Colors.RED);
-                                }
-                            });
-                        }
-                    }
+                // when we got a response from twitter, check for an error (which can occur pretty frequently)
+                if(error) {
+                    errorTwitter(error, statusData);
+                    return;
                 }
-            );
+
+                //if we could send the tweet just fine
+                LogUtils.logtrace("[" + statusData.retweeted_status.id_str + "] ->retweeted from [" + statusData.retweeted_status.user.screen_name + "]", LogUtils.Colors.GREEN);
+
+                //check if there's "[TL]" in the name of the but
+                var tweetLimitCheck = statusData.user.name.match(/(\[TL\]) (.*)/);	
+
+                //if we just got out of tweet limit, we need to update the bot's name
+                if(tweetLimitCheck != null) {
+                    //DO EET
+                    twitterAPI.post('account/update_profile', {name: tweetLimitCheck[2]}, (error, data) => {
+                        if(error) {
+                            LogUtils.logtrace("error while trying to change username (going OUT of TL)", LogUtils.Colors.RED);
+                        } else {
+                            hasNotifiedTL = true;
+                            LogUtils.logtrace("gone OUT of tweet limit", LogUtils.Colors.RED);
+                        }
+                    });
+                }
+            });
+
+            // we just RT in case of a quote
+            if (isQuotingBot) {
+                return;
+            }
 
             var result = '';
 
